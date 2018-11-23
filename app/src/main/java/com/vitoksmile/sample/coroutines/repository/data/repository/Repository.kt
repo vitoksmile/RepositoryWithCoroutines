@@ -1,5 +1,6 @@
 package com.vitoksmile.sample.coroutines.repository.data.repository
 
+import com.vitoksmile.sample.coroutines.repository.utils.isNetworkAvailable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
@@ -16,10 +17,12 @@ class Repository<E>(
         val itemsDB = db.getAll().await()
         send(itemsDB)
 
-        // Get items from API
-        delay(3000)
-        val itemsAPI = api.getAll().await()
-        send(itemsAPI)
+        if (isNetworkAvailable()) {
+            // Get items from API
+            delay(3000)
+            val itemsAPI = api.getAll().await()
+            send(itemsAPI)
+        }
 
         close()
     }
