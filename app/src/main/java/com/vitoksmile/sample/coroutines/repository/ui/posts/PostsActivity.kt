@@ -1,6 +1,7 @@
 package com.vitoksmile.sample.coroutines.repository.ui.posts
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.vitoksmile.sample.coroutines.repository.R
@@ -23,6 +24,7 @@ class PostsActivity : AppCompatActivity() {
         recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
 
         adapter.onPostClickListener = this::onPostClicked
+        adapter.onPostLongClickListener = this::onPostLongClicked
 
         subscribeToViewModel()
     }
@@ -30,17 +32,24 @@ class PostsActivity : AppCompatActivity() {
     private fun subscribeToViewModel() {
         viewModel.init()
 
-        viewModel.posts.observe(this,
-                success = { posts ->
-                    adapter.setPosts(posts)
-                },
-                error = { error ->
-                    error.printStackTrace()
-                },
-                loading = { isLoading ->
-                    loadingView.setLoading(isLoading)
-                }
+        viewModel.postsData.observe(this,
+            { posts -> adapter.setPosts(posts) },
+            { error -> showError(error) },
+            { isLoading -> showLoading(isLoading) }
         )
+
+        viewModel.removePostData.observe(this,
+            { },
+            { error -> showError(error) },
+            { isLoading -> showLoading(isLoading) })
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        loadingView.setLoading(isLoading)
+    }
+
+    private fun showError(error: Exception) {
+        Toast.makeText(this, "Exception $error", Toast.LENGTH_LONG).show()
     }
 
     private fun onPostClicked(post: Post) {
@@ -49,5 +58,9 @@ class PostsActivity : AppCompatActivity() {
         }
 
         CommentsBottomSheetDialog.show(supportFragmentManager, post.comments)
+    }
+
+    private fun onPostLongClicked(post: Post) {
+        viewModel.removePost(post)
     }
 }

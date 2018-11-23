@@ -10,17 +10,25 @@ class PostsViewModel : ScopedViewModel() {
 
     private val interactor = PostsInteractor()
 
-    val posts = ResponseLiveData<List<Post>>()
+    val postsData = ResponseLiveData<List<Post>>()
+
+    val removePostData = ResponseLiveData<Unit>()
 
     fun init() {
-        if (posts.value != null) {
+        if (postsData.value != null) {
             return
         }
 
         getPosts()
     }
 
+    fun removePost(post: Post) {
+        launch {
+            removePostData.from(interactor.remove(post))
+        }
+    }
+
     private fun getPosts() = launch {
-        posts.from(interactor.get(this))
+        postsData.from(interactor.get(this))
     }
 }

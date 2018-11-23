@@ -13,6 +13,7 @@ class PostsAdapter : RecyclerView.Adapter<PostsAdapter.ViewHolder>() {
     private val posts = mutableListOf<Post>()
 
     var onPostClickListener: ((post: Post) -> Unit)? = null
+    var onPostLongClickListener: ((post: Post) -> Unit)? = null
 
     fun setPosts(posts: List<Post>) {
         this.posts.apply {
@@ -22,8 +23,17 @@ class PostsAdapter : RecyclerView.Adapter<PostsAdapter.ViewHolder>() {
         notifyDataSetChanged()
     }
 
+    fun removePost(post: Post) {
+        val index = posts.indexOf(post)
+        if (index >= 0) {
+            posts.removeAt(index)
+            notifyItemRemoved(index)
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.item_post, parent, false))
+        LayoutInflater.from(parent.context).inflate(R.layout.item_post, parent, false)
+    )
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val post = posts[position]
@@ -49,6 +59,19 @@ class PostsAdapter : RecyclerView.Adapter<PostsAdapter.ViewHolder>() {
 
                 val post = posts[position]
                 onPostClickListener?.invoke(post)
+            }
+
+            view.setOnLongClickListener {
+                val position = adapterPosition
+
+                if (position == RecyclerView.NO_POSITION) {
+                    return@setOnLongClickListener true
+                }
+
+                val post = posts[position]
+                onPostLongClickListener?.invoke(post)
+                removePost(post)
+                true
             }
         }
 
