@@ -21,6 +21,6 @@ class PostsViewModel : ScopedViewModel() {
     }
 
     private fun getPosts() = launch {
-        posts.from(interactor.getAll(this))
+        posts.from(interactor.get(this))
     }
 }

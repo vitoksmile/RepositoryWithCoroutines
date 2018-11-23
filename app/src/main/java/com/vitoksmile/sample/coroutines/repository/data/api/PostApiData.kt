@@ -25,6 +25,29 @@ class PostApiData : DataSource<Post> {
         CompletableDeferred(posts)
     }
 
+    override suspend fun saveAll(items: List<Post>): Deferred<List<Post>> = withContext(BG) {
+        val posts = mutableListOf<Post>()
+
+        for (item in items) {
+            // Save posts parallel
+            launch {
+                val post = apiPosts.create(item).await()
+                posts.add(post)
+            }
+        }
+
+        CompletableDeferred(posts)
+    }
+
+    override suspend fun removeAll(items: List<Post>) = withContext(BG) {
+        for (item in items) {
+            // Remove posts parallel
+            launch { apiPosts.remove(item.id).await() }
+        }
+    }
+
+    override suspend fun removeAll() {}
+
     private suspend fun getCommentsByPost(post: Post) {
         val comments = apiComments.getByPostId(post.id).await()
         post.comments.addAll(comments)

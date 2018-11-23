@@ -23,6 +23,14 @@ class PostDbData : DataSource<Post> {
         CompletableDeferred(result)
     }
 
+    override suspend fun saveAll(items: List<Post>): Deferred<List<Post>> = withContext(BG) {
+        CompletableDeferred(items)
+    }
+
+    override suspend fun removeAll(items: List<Post>) {}
+
+    override suspend fun removeAll() {}
+
     private fun fakePost(id: Int) = Post(
         id = id,
         userId = Math.abs(Random.nextInt()),
