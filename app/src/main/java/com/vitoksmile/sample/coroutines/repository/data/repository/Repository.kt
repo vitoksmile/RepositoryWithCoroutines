@@ -11,6 +11,8 @@ class Repository<E>(
 ) {
 
     fun getAll(scope: CoroutineScope): ReceiveChannel<List<E>> = scope.produce {
+        // Get items from DB first
+        delay(1000)
         val itemsDB = db.getAll().await()
         send(itemsDB)
 

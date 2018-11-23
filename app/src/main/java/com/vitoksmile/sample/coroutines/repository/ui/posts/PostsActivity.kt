@@ -2,7 +2,6 @@ package com.vitoksmile.sample.coroutines.repository.ui.posts
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.vitoksmile.sample.coroutines.repository.R
 import com.vitoksmile.sample.coroutines.repository.di.injectViewModel
@@ -27,10 +26,16 @@ class PostsActivity : AppCompatActivity() {
     private fun subscribeToViewModel() {
         viewModel.init()
 
-        viewModel.posts.observe(this, Observer {
-            val posts = it ?: return@Observer
-
-            adapter.setPosts(posts)
-        })
+        viewModel.posts.observe(this,
+            success = { posts ->
+                adapter.setPosts(posts)
+            },
+            error = { error ->
+                error.printStackTrace()
+            },
+            loading = { isLoading ->
+                loadingView.setLoading(isLoading)
+            }
+        )
     }
 }
