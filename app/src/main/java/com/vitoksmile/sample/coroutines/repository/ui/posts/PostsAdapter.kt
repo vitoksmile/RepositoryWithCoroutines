@@ -35,12 +35,14 @@ class PostsAdapter : RecyclerView.Adapter<PostsAdapter.ViewHolder>() {
         private val tvId = view.tvId
         private val tvTitle = view.tvTitle
         private val tvBody = view.tvBody
+        private val tvCommentsCount = view.tvCommentsCount
 
         fun bind(post: Post) {
             with(post) {
                 tvId.text = "ID #$id"
                 tvTitle.text = title
                 tvBody.text = body
+                tvCommentsCount.text = "Comments: ${comments.size}"
             }
         }
     }

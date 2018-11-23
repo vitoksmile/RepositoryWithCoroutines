@@ -1,45 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="16dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="8dp">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvId"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingStart="16dp" android:paddingEnd="16dp"
-        android:paddingTop="8dp" android:paddingBottom="8dp">
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="#12345678" />
 
     <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvId"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="#12345678"/>
+        android:id="@+id/tvTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="#333"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvId"
+        tools:text="Title" />
 
     <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="#333"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvId"
-            tools:text="Title"/>
+        android:id="@+id/tvBody"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="#333"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        tools:text="Body" />
 
     <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvBody"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textColor="#333"
-            android:textSize="16sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvTitle"
-            tools:text="Body"/>
+        android:id="@+id/tvCommentsCount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvBody"
+        tools:text="Comments: 0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

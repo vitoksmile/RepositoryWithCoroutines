@@ -17,14 +17,14 @@ class PostDbData : DataSource<Post> {
         val result = mutableListOf<Post>()
 
         for (i in 0 until 10) {
-            result.add(fakePost())
+            result.add(fakePost(i + 1))
         }
 
         CompletableDeferred(result)
     }
 
-    private fun fakePost() = Post(
-        id = Math.abs(Random.nextInt()),
+    private fun fakePost(id: Int) = Post(
+        id = id,
         userId = Math.abs(Random.nextInt()),
         title = "DB: ${randomString(10)}",
         body = randomString(30)
