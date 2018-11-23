@@ -46,8 +46,17 @@ class ResponseLiveData<T : Any> : LiveData<Response<T>>() {
 
         try {
             withContext(BG) {
+                // Receive items in BG
                 for (element in channel) {
-                    postValue(Response.Success(element))
+                    // Send value in UI
+                    withContext(UI) {
+                        value = Response.Success(element)
+
+                        // Show loading if channel is not closed
+                        if (!channel.isClosedForReceive) {
+                            value = Response.Loading
+                        }
+                    }
                 }
             }
         } catch (canceled: CancellationException) {
