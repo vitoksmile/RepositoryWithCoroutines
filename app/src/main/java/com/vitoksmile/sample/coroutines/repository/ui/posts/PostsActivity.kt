@@ -4,7 +4,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.vitoksmile.sample.coroutines.repository.R
+import com.vitoksmile.sample.coroutines.repository.data.models.Post
 import com.vitoksmile.sample.coroutines.repository.di.injectViewModel
+import com.vitoksmile.sample.coroutines.repository.ui.posts.comments.CommentsBottomSheetDialog
 import kotlinx.android.synthetic.main.activity_posts.*
 
 class PostsActivity : AppCompatActivity() {
@@ -20,6 +22,8 @@ class PostsActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
         recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
 
+        adapter.onPostClickListener = this::onPostClicked
+
         subscribeToViewModel()
     }
 
@@ -27,15 +31,23 @@ class PostsActivity : AppCompatActivity() {
         viewModel.init()
 
         viewModel.posts.observe(this,
-            success = { posts ->
-                adapter.setPosts(posts)
-            },
-            error = { error ->
-                error.printStackTrace()
-            },
-            loading = { isLoading ->
-                loadingView.setLoading(isLoading)
-            }
+                success = { posts ->
+                    adapter.setPosts(posts)
+                },
+                error = { error ->
+                    error.printStackTrace()
+                },
+                loading = { isLoading ->
+                    loadingView.setLoading(isLoading)
+                }
         )
+    }
+
+    private fun onPostClicked(post: Post) {
+        if (post.comments.isEmpty()) {
+            return
+        }
+
+        CommentsBottomSheetDialog.show(supportFragmentManager, post.comments)
     }
 }

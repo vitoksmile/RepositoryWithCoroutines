@@ -12,6 +12,8 @@ class PostsAdapter : RecyclerView.Adapter<PostsAdapter.ViewHolder>() {
 
     private val posts = mutableListOf<Post>()
 
+    var onPostClickListener: ((post: Post) -> Unit)? = null
+
     fun setPosts(posts: List<Post>) {
         this.posts.apply {
             clear()
@@ -36,6 +38,19 @@ class PostsAdapter : RecyclerView.Adapter<PostsAdapter.ViewHolder>() {
         private val tvTitle = view.tvTitle
         private val tvBody = view.tvBody
         private val tvCommentsCount = view.tvCommentsCount
+
+        init {
+            view.setOnClickListener {
+                val position = adapterPosition
+
+                if (position == RecyclerView.NO_POSITION) {
+                    return@setOnClickListener
+                }
+
+                val post = posts[position]
+                onPostClickListener?.invoke(post)
+            }
+        }
 
         fun bind(post: Post) {
             with(post) {
