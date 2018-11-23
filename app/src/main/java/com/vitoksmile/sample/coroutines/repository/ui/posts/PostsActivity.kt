@@ -3,6 +3,7 @@ package com.vitoksmile.sample.coroutines.repository.ui.posts
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.vitoksmile.sample.coroutines.repository.R
 import com.vitoksmile.sample.coroutines.repository.di.injectViewModel
 import kotlinx.android.synthetic.main.activity_posts.*
@@ -18,6 +19,7 @@ class PostsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_posts)
 
         recyclerView.adapter = adapter
+        recyclerView.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
 
         subscribeToViewModel()
     }

@@ -25,7 +25,10 @@ class PostsViewModel : ScopedViewModel() {
 
     private fun getPosts() = launch {
         try {
-            posts_.value = interactor.getAll()
+            val result = interactor.getAll(this)
+            for (element in result) {
+                posts_.value = element
+            }
         } catch (canceled: CancellationException) {
             // Canceled by user
         } catch (error: Exception) {
