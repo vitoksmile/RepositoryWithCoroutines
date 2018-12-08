@@ -26,44 +26,61 @@ class ResponseLiveData<T : Any> : LiveData<Response<T>>() {
         super.observe(lifecycleOwner, ResponseObserver(success, error, loading))
     }
 
-    suspend fun from(job: Deferred<T>) = withContext(UI) {
-        value = Response.Loading
+    /**
+     * Receive values from suspend function
+     */
+    suspend fun from(action: suspend () -> Deferred<T>) = withContext(UI) {
+        loading()
 
         try {
             val result = withContext(BG) {
-                job.await()
+                action().await()
             }
-            value = Response.Success(result)
+            success(result)
         } catch (canceled: CancellationException) {
             // Canceled by user
         } catch (error: Exception) {
-            value = Response.Error(error)
+            error(error)
         }
     }
 
-    suspend fun from(channel: ReceiveChannel<T>) = withContext(UI) {
-        value = Response.Loading
+    /**
+     * Receive values from Channel
+     */
+    suspend fun fromChannel(action: suspend () -> ReceiveChannel<T>) = withContext(UI) {
+        loading()
 
         try {
+            // Receive items in BG
             withContext(BG) {
-                // Receive items in BG
-                for (element in channel) {
-                    // Send value in UI
-                    withContext(UI) {
-                        value = Response.Success(element)
+                val channel = action()
 
-                        // Show loading if channel is not closed
-                        if (!channel.isClosedForReceive) {
-                            value = Response.Loading
-                        }
+                for (element in channel) {
+                    success(element)
+
+                    // Show loading if channel is not closed
+                    if (!channel.isClosedForReceive) {
+                        loading()
                     }
                 }
             }
         } catch (canceled: CancellationException) {
             // Canceled by user
         } catch (error: Exception) {
-            value = Response.Error(error)
+            error(error)
         }
+    }
+
+    private suspend fun loading() = withContext(UI) {
+        value = Response.Loading
+    }
+
+    private suspend fun success(result: T) = withContext(UI) {
+        value = Response.Success(result)
+    }
+
+    private suspend fun error(error: Exception) = withContext(UI) {
+        value = Response.Error(error)
     }
 }
 

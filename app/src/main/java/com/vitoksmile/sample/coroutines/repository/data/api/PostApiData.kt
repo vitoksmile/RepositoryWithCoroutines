@@ -25,7 +25,7 @@ class PostApiData : DataSource<Post> {
         CompletableDeferred(posts)
     }
 
-    override suspend fun saveAll(items: List<Post>): Deferred<List<Post>> = withContext(BG) {
+    override suspend fun saveAll(items: List<Post>) = withContext(BG) {
         val posts = mutableListOf<Post>()
 
         for (item in items) {
@@ -35,8 +35,6 @@ class PostApiData : DataSource<Post> {
                 posts.add(post)
             }
         }
-
-        CompletableDeferred(posts)
     }
 
     override suspend fun removeAll(items: List<Post>) = withContext(BG) {

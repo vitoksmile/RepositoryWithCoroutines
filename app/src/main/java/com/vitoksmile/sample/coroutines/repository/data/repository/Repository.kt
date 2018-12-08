@@ -1,65 +1,66 @@
 package com.vitoksmile.sample.coroutines.repository.data.repository
 
 import com.vitoksmile.sample.coroutines.repository.coroutines.DispatcherHolder.BG
-import com.vitoksmile.sample.coroutines.repository.data.exceptions.NoInternetException
+import com.vitoksmile.sample.coroutines.repository.extensions.requireNetwork
 import com.vitoksmile.sample.coroutines.repository.utils.isNetworkAvailable
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.withContext
 
+@Suppress("EXPERIMENTAL_API_USAGE")
 class Repository<E>(
     private val api: DataSource<E>,
     private val db: DataSource<E>
 ) {
 
     suspend fun getAll(scope: CoroutineScope): ReceiveChannel<List<E>> = scope.produce {
-        try {
-            // Get items from DB first
-            val itemsDB = db.getAll().await()
-            send(itemsDB)
-        } catch (ignored: Exception) {
-            ignored.printStackTrace()
-        }
+        // Send items from DB first
+        send(db.getAll().await())
 
         if (isNetworkAvailable()) {
-            try {
-                // Get items from API
-                val itemsAPI = api.getAll().await()
-                send(itemsAPI)
-            } catch (ignored: Exception) {
-                ignored.printStackTrace()
-            }
+            // Get items from API
+            val items = api.getAll().await()
+
+            // Remove all items from DB
+            db.removeAll()
+
+            // Save new items from API to DB
+            db.saveAll(items)
+
+            // Send items from API
+            send(items)
         }
 
         close()
     }
 
-    suspend fun save(item: E): Deferred<E> = withContext(BG) {
-        CompletableDeferred<E>().apply {
+    suspend fun save(item: E): Deferred<Unit> = withContext(BG) {
+        CompletableDeferred<Unit>().apply {
             try {
-                val result = saveAll(listOf(item)).await().first()
-                complete(result)
+                saveAll(listOf(item)).await()
+                complete(Unit)
             } catch (error: Exception) {
                 completeExceptionally(error)
             }
         }
     }
 
-    suspend fun saveAll(items: List<E>): Deferred<List<E>> = withContext(BG) {
-        CompletableDeferred<List<E>>().apply {
-            if (!isNetworkAvailable()) {
-                completeExceptionally(NoInternetException())
-            }
+    suspend fun saveAll(items: List<E>): Deferred<Unit> = withContext(BG) {
+        CompletableDeferred<Unit>().apply {
+            requireNetwork()
 
             try {
                 // Save items to API first
-                val itemsAPI = api.saveAll(items).await()
+                api.saveAll(items)
 
                 // Then save items to DB
-                db.saveAll(itemsAPI).await()
+                db.saveAll(items)
 
-                // Return saved items
-                complete(itemsAPI)
+                // Complete deferred
+                complete(Unit)
 
             } catch (error: Exception) {
                 completeExceptionally(error)
@@ -70,7 +71,7 @@ class Repository<E>(
     suspend fun remove(item: E): Deferred<Unit> = withContext(BG) {
         CompletableDeferred<Unit>().apply {
             try {
-                removeAll(listOf(item))
+                removeAll(listOf(item)).await()
                 complete(Unit)
             } catch (error: Exception) {
                 completeExceptionally(error)
@@ -80,20 +81,18 @@ class Repository<E>(
 
     suspend fun removeAll(items: List<E>): Deferred<Unit> = withContext(BG) {
         CompletableDeferred<Unit>().apply {
-            if (!isNetworkAvailable()) {
-                completeExceptionally(NoInternetException())
-            }
+            requireNetwork()
 
-            // Remove items from DB first
+            // Remove items from API first
             try {
-                db.removeAll(items)
+                api.removeAll(items)
             } catch (error: Exception) {
                 completeExceptionally(error)
             }
 
-            // Then remove items from API
+            // Then remove items from DB
             try {
-                api.removeAll(items)
+                db.removeAll(items)
             } catch (error: Exception) {
                 completeExceptionally(error)
             }
@@ -104,16 +103,16 @@ class Repository<E>(
 
     suspend fun removeAll(): Deferred<Unit> = withContext(BG) {
         CompletableDeferred<Unit>().apply {
-            // Remove items from DB first
+            // Remove items from API first
             try {
-                db.removeAll()
+                api.removeAll()
             } catch (error: Exception) {
                 completeExceptionally(error)
             }
 
-            // Then remove items from API
+            // Then remove items from DB
             try {
-                api.removeAll()
+                db.removeAll()
             } catch (error: Exception) {
                 completeExceptionally(error)
             }

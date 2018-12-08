@@ -23,9 +23,7 @@ class PostDbData : DataSource<Post> {
         CompletableDeferred(result)
     }
 
-    override suspend fun saveAll(items: List<Post>): Deferred<List<Post>> = withContext(BG) {
-        CompletableDeferred(items)
-    }
+    override suspend fun saveAll(items: List<Post>) {}
 
     override suspend fun removeAll(items: List<Post>) {}
 

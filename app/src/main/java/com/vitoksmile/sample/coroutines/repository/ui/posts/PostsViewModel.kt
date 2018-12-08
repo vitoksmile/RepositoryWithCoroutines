@@ -10,8 +10,16 @@ class PostsViewModel : ScopedViewModel() {
 
     private val interactor = PostsInteractor()
 
+    /**
+     * Hold posts
+     */
     val postsData = ResponseLiveData<List<Post>>()
 
+    /**
+     * Hold action when post was removed
+     *
+     * TODO: should be replaced to ActionLiveData, the LiveData will clear value after consume
+     */
     val removePostData = ResponseLiveData<Unit>()
 
     fun init() {
@@ -22,13 +30,15 @@ class PostsViewModel : ScopedViewModel() {
         getPosts()
     }
 
-    fun removePost(post: Post) {
-        launch {
-            removePostData.from(interactor.remove(post))
+    fun removePost(post: Post) = launch {
+        removePostData.from {
+            interactor.remove(post)
         }
     }
 
     private fun getPosts() = launch {
-        postsData.from(interactor.get(this))
+        postsData.fromChannel {
+            interactor.get(this)
+        }
     }
 }
